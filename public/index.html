@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Pesquisa de Preços</title>
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+  <aside class="sidebar">
+    <div class="logo">
+      <span class="logo-icon">📊</span>
+      <span class="logo-text">PreçoField</span>
+    </div>
+    <nav>
+      <button class="nav-btn active" data-page="pesquisas">
+        <span class="nav-icon">🔍</span> Pesquisas
+      </button>
+      <button class="nav-btn" data-page="produtos">
+        <span class="nav-icon">📦</span> Meus Produtos
+      </button>
+    </nav>
+  </aside>
+
+  <main class="content">
+    <!-- ═══ PÁGINA: PESQUISAS ═══ -->
+    <div id="page-pesquisas" class="page active">
+      <header class="page-header">
+        <div>
+          <h1>Pesquisas de Preço</h1>
+          <p class="subtitle">Crie e gerencie suas pesquisas de mercado</p>
+        </div>
+        <button class="btn btn-primary" id="btn-nova-pesquisa">+ Nova Pesquisa</button>
+      </header>
+
+      <div id="lista-pesquisas" class="cards-grid"></div>
+    </div>
+
+    <!-- ═══ PÁGINA: PRODUTOS ═══ -->
+    <div id="page-produtos" class="page">
+      <header class="page-header">
+        <div>
+          <h1>Meus Produtos</h1>
+          <p class="subtitle">Produtos cadastrados como referência</p>
+        </div>
+        <button class="btn btn-primary" id="btn-novo-produto">+ Novo Produto</button>
+      </header>
+
+      <table class="tabela" id="tabela-produtos">
+        <thead>
+          <tr>
+            <th>Nome</th>
+            <th>Código</th>
+            <th>Categoria</th>
+            <th style="width:100px">Ações</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
+
+    <!-- ═══ PÁGINA: EDITOR DE PESQUISA ═══ -->
+    <div id="page-editor" class="page">
+      <header class="page-header">
+        <div>
+          <button class="btn-back" id="btn-voltar">← Voltar</button>
+          <h1 id="editor-titulo-h">Nova Pesquisa</h1>
+          <p class="subtitle" id="editor-tipo-label"></p>
+        </div>
+        <div class="header-actions">
+          <button class="btn btn-outline" id="btn-exportar-pdf">⬇ Exportar PDF</button>
+          <button class="btn btn-primary" id="btn-salvar-pesquisa">Salvar</button>
+        </div>
+      </header>
+
+      <div class="editor-meta">
+        <label>Título da Pesquisa
+          <input type="text" id="editor-titulo-input" placeholder="Ex: Levantamento Junho 2025" />
+        </label>
+      </div>
+
+      <div class="editor-section">
+        <div class="section-header">
+          <h2>Itens da Pesquisa</h2>
+          <button class="btn btn-sm btn-primary" id="btn-add-item">+ Adicionar Item</button>
+        </div>
+        <div id="lista-itens"></div>
+      </div>
+    </div>
+  </main>
+
+  <!-- ═══ MODAL: NOVA PESQUISA ═══ -->
+  <div class="modal-overlay" id="modal-tipo" style="display:none">
+    <div class="modal">
+      <h2>Selecione o Tipo</h2>
+      <p>Escolha o modelo de pesquisa que deseja criar:</p>
+      <div class="tipo-cards">
+        <div class="tipo-card" data-tipo="geral">
+          <div class="tipo-icon">📋</div>
+          <strong>Pesquisa Geral</strong>
+          <p>Levantamento livre de preços sem agrupamento</p>
+        </div>
+        <div class="tipo-card" data-tipo="comparada">
+          <div class="tipo-icon">⚖️</div>
+          <strong>Pesquisa Comparada</strong>
+          <p>Agrupa itens por implemento/produto compatível</p>
+        </div>
+      </div>
+      <button class="btn btn-outline btn-full" onclick="fecharModal('modal-tipo')">Cancelar</button>
+    </div>
+  </div>
+
+  <!-- ═══ MODAL: PRODUTO ═══ -->
+  <div class="modal-overlay" id="modal-produto" style="display:none">
+    <div class="modal">
+      <h2 id="modal-produto-titulo">Novo Produto</h2>
+      <input type="hidden" id="produto-id" />
+      <label>Nome *
+        <input type="text" id="produto-nome" placeholder="Nome do produto" />
+      </label>
+      <label>Código
+        <input type="text" id="produto-codigo" placeholder="Código interno" />
+      </label>
+      <label>Categoria
+        <input type="text" id="produto-categoria" placeholder="Ex: Implemento Agrícola" />
+      </label>
+      <div class="modal-actions">
+        <button class="btn btn-outline" onclick="fecharModal('modal-produto')">Cancelar</button>
+        <button class="btn btn-primary" id="btn-salvar-produto">Salvar Produto</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ MODAL: ITEM DE PESQUISA ═══ -->
+  <div class="modal-overlay" id="modal-item" style="display:none">
+    <div class="modal modal-wide">
+      <h2 id="modal-item-titulo">Adicionar Item</h2>
+      <input type="hidden" id="item-idx" value="-1" />
+
+      <div class="form-grid">
+        <label>Produto *
+          <input type="text" id="item-produto" placeholder="Nome ou fornecedor" />
+        </label>
+        <label id="label-compativel">Produto Compatível / Implemento
+          <input type="text" id="item-compativel" placeholder="Ex: Plantadeira X" list="lista-meus-produtos" />
+          <datalist id="lista-meus-produtos"></datalist>
+        </label>
+        <label>Valor (R$) *
+          <input type="number" id="item-valor" step="0.01" min="0" placeholder="0,00" />
+        </label>
+        <label>Tipo de Frete
+          <select id="item-frete">
+            <option value="">Selecione...</option>
+            <option>CIF</option>
+            <option>FOB</option>
+            <option>A Combinar</option>
+            <option>Incluso</option>
+            <option>Não incluso</option>
+          </select>
+        </label>
+        <label class="span2">Opcionais
+          <input type="text" id="item-opcionais" placeholder="Ex: GPS, monitor de plantio..." />
+        </label>
+        <label>Região
+          <input type="text" id="item-regiao" placeholder="Ex: Sul, SP, PR..." />
+        </label>
+        <label class="span2">Observações
+          <textarea id="item-obs" rows="2" placeholder="Informações adicionais..."></textarea>
+        </label>
+      </div>
+
+      <div class="modal-actions">
+        <button class="btn btn-outline" onclick="fecharModal('modal-item')">Cancelar</button>
+        <button class="btn btn-primary" id="btn-salvar-item">Confirmar</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/app.js"></script>
+</body>
+</html>
