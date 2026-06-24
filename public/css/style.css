@@ -2,7 +2,7 @@
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 :root {
-  --verde: #1B6B3A;
+  --verde: #101111;
   --verde-mid: #2E8B57;
   --verde-claro: #E8F5EE;
   --verde-borda: #A7D4B7;
